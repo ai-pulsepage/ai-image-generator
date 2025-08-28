@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Image Generator</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 50px; }
+        #container { width: 512px; text-align: center; }
+        #prompt { width: 100%; padding: 10px; margin-bottom: 10px; }
+        button { padding: 10px 20px; }
+        #image-container { margin-top: 20px; min-height: 512px; width: 512px; border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; }
+        img { max-width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>AI Image Generator</h1>
+        <input type="text" id="prompt" placeholder="Enter a prompt, e.g., a cat wearing a wizard hat">
+        <button onclick="generateImage()">Generate Image</button>
+        <div id="image-container">
+            <p id="loading-message">Your generated image will appear here.</p>
+            <img id="result-image" src="" alt="Generated AI Image" style="display:none;">
+        </div>
+    </div>
+<!-- JavaScript goes below -->
+<script>
+    async function generateImage() {
+        const prompt = document.getElementById('prompt').value;
+        const loadingMessage = document.getElementById('loading-message');
+        const resultImage = document.getElementById('result-image');
+        loadingMessage.textContent = 'Generating... Please wait.';
+        resultImage.style.display = 'none';
+        try {
+            const response = await fetch('/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt })
+            });
+            if (!response.ok) { throw new Error('Failed to generate image.'); }
+            const data = await response.json();
+            resultImage.src = `data:image/png;base64,${data.image_data}`;
+            resultImage.style.display = 'block';
+            loadingMessage.textContent = '';
+        } catch (error) {
+            console.error('Error:', error);
+            loadingMessage.textContent = 'An error occurred. Please try again.';
+        }
+    }
+</script>
+</body>
+</html>
